@@ -1,5 +1,6 @@
-// Country facts from the World Bank: population, GDP per person and life expectancy, the most recent year
-// each country has a figure for. Changes yearly, so fetched daily.
+// Country facts from the World Bank: population, GDP per person, life expectancy and the official exchange
+// rate (local currency per US dollar, yearly average), the most recent year each country has a figure for.
+// Changes yearly, so fetched daily.
 const http = require('../lib/http');
 const { COUNTRIES } = require('../lib/geo');
 
@@ -13,7 +14,9 @@ const SOURCE = {
 const INDICATORS = {
     population: 'SP.POP.TOTL',
     gdpPerHead: 'NY.GDP.PCAP.CD',
-    lifeExpectancy: 'SP.DYN.LE00.IN'
+    lifeExpectancy: 'SP.DYN.LE00.IN',
+    // Covers the currencies the ECB's daily rates don't
+    usdRate: 'PA.NUS.FCRF'
 };
 
 async function fetchIndicator(code) {

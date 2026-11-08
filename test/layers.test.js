@@ -104,6 +104,7 @@ test('facts: the latest figure and year for each country; regions are ignored', 
     assert.deepEqual(d.countries.IRL.population, { value: 5484367, year: 2025 });
     assert.equal(Math.round(d.countries.IRL.gdpPerHead.value), 131592);
     assert.deepEqual(d.countries.IRL.lifeExpectancy, { value: 83.009756097561, year: 2024 });
+    assert.deepEqual(d.countries.NGA.usdRate, { value: 1518.38094813367, year: 2025 }, 'naira per US dollar, yearly average');
     assert.equal(d.countries.KOS.population.value, 1576876, "Kosovo is XKX at the World Bank");
     assert.ok(!Object.keys(d.countries).some(id => ['AFE', 'WLD'].includes(id)));
     assert.equal(d.sourceTime, '2026-10-08T00:00:00.000Z');

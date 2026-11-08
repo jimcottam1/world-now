@@ -18,6 +18,9 @@ const LAYERS = {
     events: [require('./layers/events').fetchEvents, 0],
     webcams: [require('./layers/webcams').fetchWebcams, 0],
     airquality: [require('./layers/airquality').fetchAirQuality, 3],
+    aurora: [require('./layers/aurora').fetchAurora, 0],
+    rates: [require('./layers/rates').fetchRates, 3],
+    electricity: [require('./layers/electricity').fetchElectricity, 24],
     facts: [require('./layers/facts').fetchFacts, 24]
 };
 

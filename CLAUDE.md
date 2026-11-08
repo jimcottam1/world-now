@@ -26,7 +26,7 @@ A static site, the world-wide sister of Ireland Now (`../ireland-now`): GitHub A
 
 ## Code layout
 - `scripts/layers/<name>.js`: one per source, exporting `fetch<Name>()` that returns `{ updatedAt, source, sourceTime, ... }`. Register it in `scripts/build.js` with its cache age in hours.
-- `scripts/lib/`: `http` (polite fetch with retries), `geo` (country lookups: `countryAt`, `byIso2`, `COUNTRIES`), `state` (cache between runs), `redact` (keeps keys out of errors).
+- `scripts/lib/`: `http` (polite fetch with retries), `geo` (country lookups: `countryAt`, `byIso2`, `COUNTRIES`), `currencies` (which countries use each ECB currency), `state` (cache between runs), `redact` (keeps keys out of errors).
 - Country ids are ISO 3166 alpha-3 codes where there is one (Natural Earth's own code otherwise, e.g. `KOS`); `wb` is the World Bank code; `lat`/`lon` is the capital, else the biggest town, else the middle.
 - `public/app.js`: the whole front end. `public/styles.css`: copied from Ireland Now, light and dark themes.
 

@@ -2,7 +2,7 @@
 (function () {
     'use strict';
 
-    const LAYERS = ['weather', 'airquality', 'earthquakes', 'events', 'webcams', 'facts'];
+    const LAYERS = ['weather', 'airquality', 'earthquakes', 'events', 'webcams', 'aurora', 'rates', 'electricity', 'facts'];
     const data = {};
     let status = null;
     let countries = null;   // GeoJSON features
@@ -154,8 +154,46 @@
             stops: [[50, 'fff5eb'], [60, 'fdbe85'], [70, 'fd8d3c'], [78, 'd94701'], [85, '7f2704']],
             ends: ['50 years', '85 years'],
             describe: v => v == null ? 'No figure' : `${v.toFixed(1)} years`
+        },
+        clean: {
+            label: 'Clean electricity', title: 'Electricity from renewables and nuclear',
+            value: id => data.electricity?.countries?.[id]?.lowCarbon,
+            stops: [[0, '5b3a29'], [25, 'b07a3b'], [50, 'd9d36b'], [75, '7cc47a'], [100, '1b7f4f']],
+            ends: ['0%', '100%'],
+            describe: v => v == null ? 'No figure' : `${v}% of electricity from renewables and nuclear`
         }
     };
+
+    // ---------- Northern and Southern Lights ----------
+
+    // The north geomagnetic pole (IGRF dipole, 2025). Aurora reach depends on distance from it, not the geographic pole.
+    const GEO_POLE = { lat: 80.8, lon: -72.7 };
+    function magneticLatitude(lat, lon) {
+        const r = Math.PI / 180;
+        const s = Math.sin(lat * r) * Math.sin(GEO_POLE.lat * r) + Math.cos(lat * r) * Math.cos(GEO_POLE.lat * r) * Math.cos((lon - GEO_POLE.lon) * r);
+        return Math.asin(Math.max(-1, Math.min(1, s))) / r;
+    }
+    /** Roughly the Kp at which the lights reach the horizon from a place (a rule of thumb, tuned to Ireland's ~Kp 6). */
+    const kpNeeded = mlat => Math.max(0, (66 - Math.abs(mlat)) / 2 + 1);
+    // NOAA gives Kp in thirds (4.67); one decimal reads better
+    const kpText = v => `Kp ${Number(v).toFixed(1).replace(/\.0$/, '')}`;
+    // The ECB's rate is for a working day: show the day, not a time
+    const ecbDay = date => date ? new Date(`${date}T12:00:00Z`).toLocaleDateString('en-IE', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }) : 'date unknown';
+    function auroraChance(kp, need) {
+        if (kp >= need + 1) return { level: 'good', text: 'Good chance on a clear, dark night' };
+        if (kp >= need) return { level: 'possible', text: 'Possible, low on the horizon' };
+        if (kp >= need - 1) return { level: 'low', text: 'Unlikely to the eye; a camera might catch it' };
+        return { level: 'none', text: 'Unlikely' };
+    }
+
+    // ---------- Money and electricity ----------
+
+    /** Exchange rates to a sensible number of figures: 0.8342, 20.88, 1,517 */
+    const rate = v => v == null ? '–' : v >= 1000 ? fmt(Math.round(v)) : v >= 10 ? v.toFixed(2) : v.toPrecision(4);
+    const MIX_PARTS = [
+        ['coal', 'Coal', '#3f3f46'], ['gas', 'Gas', '#e07b39'], ['oil', 'Oil', '#8c564b'], ['nuclear', 'Nuclear', '#9467bd'],
+        ['hydro', 'Hydro', '#1f77b4'], ['wind', 'Wind', '#17becf'], ['solar', 'Solar', '#f2c418'], ['bio', 'Bioenergy', '#2ca02c'], ['otherRenewables', 'Other renewables', '#98df8a']
+    ];
 
     function colourFor(id) {
         const v = VIEWS[view];
@@ -511,6 +549,10 @@
         if (data.events) cards.push(['Wildfires tracked', fmt(count('wildfires')), 'open events, NASA', at(data.events.sourceTime, 24 * 7, 'Latest')]);
         if (data.events) cards.push(['Storms tracked', fmt(count('severeStorms')), 'tropical and severe', at(data.events.sourceTime, 24 * 7, 'Latest')]);
         if (worstAir) cards.push(['Worst air now', `AQI ${worstAir[1]}`, `${nameOf(worstAir[0])}: ${aqiText(worstAir[1])}`, at(data.airquality.sourceTime, 6)]);
+        const au = data.aurora;
+        if (au) cards.push(['Northern Lights', kpText(au.kpNow), au.kpMax > au.kpNow ? `up to ${kpText(au.kpMax)} in the next 24 hours` : 'no stronger in the next 24 hours', at(au.sourceTime, 6, 'Reading for')]);
+        // ECB rates are set on working days, so a weekend or holiday leaves them a few days old
+        if (data.rates?.rates?.USD) cards.push(['Euro', `$${data.rates.rates.USD.toFixed(4)}`, 'US dollars to 1 euro (ECB)', { text: `Rate for ${ecbDay(data.rates.date)}`, old: hoursOld(data.rates.sourceTime) > 24 * 4 }]);
 
         const strip = document.getElementById('national');
         let expanded = false;
@@ -602,6 +644,56 @@
                 ['windy.com', 'https://www.windy.com/webcams']);
         }
 
+        // Northern or Southern Lights: only where they can reach (about 50° geomagnetic latitude and beyond)
+        const au = data.aurora;
+        if (au) {
+            const m = magneticLatitude(p.lat, p.lon);
+            const need = kpNeeded(m);
+            if (need <= 9) {
+                const lights = m >= 0 ? 'Northern Lights' : 'Southern Lights';
+                const c = auroraChance(au.kpMax, need);
+                html += section(lights, `
+                    <div class="row"><span class="big">${esc(kpText(au.kpNow))}</span><span class="pill ${c.level === 'good' ? 'down' : c.level === 'possible' ? 'warn' : ''}">${esc(c.text)}</span></div>
+                    <p class="muted">${au.kpMax > au.kpNow ? `Up to ${esc(kpText(au.kpMax))} expected around ${esc(clock(au.kpMaxTime))}. ` : ''}${need < 2
+                        ? `${esc(p.place || p.name)} is near the aurora zone, so the lights can show on most clear, dark nights.`
+                        : `From ${esc(p.place || p.name)} the lights usually need about Kp ${esc(Math.round(need))} to show low on the ${m >= 0 ? 'northern' : 'southern'} horizon.`}
+                    A rough guide${w?.isDay ? '. It’s daytime there now' : ''}.</p>
+                    ${asOf(`NOAA reading for ${clock(au.sourceTime)}`, hoursOld(au.sourceTime) > 6)}`, ['NOAA', 'https://www.swpc.noaa.gov/products/aurora-30-minute-forecast']);
+            }
+        }
+
+        // Money: the ECB's daily rate where it has one, otherwise the World Bank's yearly average
+        const r = data.rates?.countries?.[id];
+        const usd = data.facts?.countries?.[id]?.usdRate;
+        if (r) {
+            const usdPerEuro = data.rates.rates.USD;
+            const body = r.currency === 'EUR'
+                ? `<p class="soft">Uses the <strong>euro</strong>. 1 euro = <strong>${esc(rate(usdPerEuro))}</strong> US dollars.</p>`
+                : r.currency === 'USD'
+                    ? `<p class="soft">Uses the <strong>US dollar</strong>. 1 euro = <strong>${esc(rate(usdPerEuro))}</strong> US dollars.</p>`
+                    : `<p class="soft">Uses the <strong>${esc(r.name)}</strong> (${esc(r.currency)}).</p>
+                        <div class="row"><span class="big">${esc(rate(r.perEuro))}</span><span class="soft">to 1 euro</span>
+                        <span class="big">${esc(rate(r.perDollar))}</span><span class="soft">to 1 US dollar</span></div>`;
+            html += section('Money', body + asOf(`ECB reference rate for ${ecbDay(data.rates.date)}`, hoursOld(data.rates.sourceTime) > 24 * 4), ['ECB', SOURCE_LINK(data.rates)]);
+        } else if (usd) {
+            html += section('Money', `<div class="row"><span class="big">${esc(rate(usd.value))}</span><span class="soft">in local currency to 1 US dollar</span></div>
+                <p class="muted">The official rate averaged over ${esc(usd.year)}. The European Central Bank doesn't publish a daily rate for this currency.</p>`,
+                ['World Bank', `https://data.worldbank.org/indicator/PA.NUS.FCRF?locations=${encodeURIComponent(p.iso2 || '')}`]);
+        }
+
+        // Electricity mix
+        const el = data.electricity?.countries?.[id];
+        if (el) {
+            const parts = MIX_PARTS.map(([key, label, colour]) => [label, colour, el.mix[key]]).filter(([, , v]) => v > 0);
+            const total = parts.reduce((s, [, , v]) => s + v, 0) || 1;
+            html += section('Electricity', `
+                <div class="row"><span class="big">${esc(el.lowCarbon)}%</span><span class="soft">from renewables and nuclear</span></div>
+                <div class="mixbar" role="img" aria-label="${esc(parts.map(([l, , v]) => `${l} ${v}%`).join(', '))}">${parts.map(([l, c, v]) => `<span style="width:${(100 * v / total).toFixed(2)}%;background:${c}" title="${esc(`${l} ${v}%`)}"></span>`).join('')}</div>
+                <ul class="mixkey">${parts.filter(([, , v]) => v >= 0.5).sort((a, b) => b[2] - a[2]).map(([l, c, v]) => `<li><i style="background:${c}"></i>${esc(l)} ${esc(v)}%</li>`).join('')}</ul>
+                ${el.carbonIntensity != null ? `<p class="muted">${esc(fmt(el.carbonIntensity))} grams of CO₂ for each kWh generated.</p>` : ''}
+                ${asOf(`Figures for ${el.year}`, el.year < new Date().getFullYear() - 2)}`, ['Our World in Data', 'https://ourworldindata.org/electricity-mix']);
+        }
+
         // Facts
         const f = data.facts?.countries?.[id];
         if (f) {
@@ -650,8 +742,31 @@
                 Switch on <strong>Webcams</strong> above the map, or open a country to watch its cameras.</p>
                 <p class="muted">Webcams provided by <a href="https://www.windy.com/" target="_blank" rel="noopener">Windy.com</a>.</p>`);
         }
+        const au = data.aurora;
+        if (au) {
+            html += section('Northern and Southern Lights', `
+                <div class="row"><span class="big">${esc(kpText(au.kpNow))}</span><span class="soft">now${au.kpMax > au.kpNow ? `, up to ${esc(kpText(au.kpMax))} in the next 24 hours` : ''}</span></div>
+                <p class="muted">The Kp index runs from 0 to 9. The higher it is, the further from the poles the lights can be seen.
+                Open a country near the poles to see the chance from its capital.</p>
+                ${asOf(`NOAA reading for ${clock(au.sourceTime)}`, hoursOld(au.sourceTime) > 6)}`, ['NOAA', 'https://www.swpc.noaa.gov/products/aurora-30-minute-forecast']);
+        }
+        if (data.electricity) {
+            // Countries of a million people or more, so small islands with one hydro plant don't fill the list
+            const big = id => (data.facts?.countries?.[id]?.population?.value || 0) >= 1e6;
+            const clean = ranked(id => big(id) ? data.electricity.countries[id]?.lowCarbon : null);
+            const note = asOf('Latest year for each country, countries of a million people or more');
+            html += section('Cleanest electricity', list(clean.slice(0, 5), v => `${v}% renewables and nuclear`) + note, ['Our World in Data', 'https://ourworldindata.org/electricity-mix'])
+                + section('Most fossil-fuelled electricity', list(clean.slice(-5).reverse(), v => `${v}% renewables and nuclear`) + note, ['Our World in Data', 'https://ourworldindata.org/electricity-mix']);
+        }
+        if (data.rates?.rates) {
+            const show = ['USD', 'GBP', 'JPY', 'CNY', 'INR', 'CHF'].filter(c => data.rates.rates[c]);
+            html += section('Exchange rates', `<ul class="list">${show.map(c => `<li>${esc(c)} <span class="meta">${esc(rate(data.rates.rates[c]))} to 1 euro</span></li>`).join('')}</ul>
+                ${asOf(`ECB reference rates for ${ecbDay(data.rates.date)}`, hoursOld(data.rates.sourceTime) > 24 * 4)}`, ['ECB', SOURCE_LINK(data.rates)]);
+        }
         return html;
     }
+
+    const SOURCE_LINK = layer => /^https:\/\//.test(layer?.source?.url || '') ? layer.source.url : '#';
 
     function renderPanel() {
         const panel = document.getElementById('panel');
