@@ -122,7 +122,7 @@
             label: 'Day or night', title: 'Day or night at the capital',
             value: id => W(id) ? W(id).isDay : null,
             colour: v => v == null ? '#d6dbd8' : v ? '#f5d76e' : '#2b3a67',
-            legend: () => `<div class="legend-title">Day or night at the capital</div>
+            legend: () => `<div class="legend-title">Day or night at the capital ${helpFor('daynight')}</div>
                 <div class="legend-row"><span class="legend-swatch" style="background:#f5d76e"></span>Daytime</div>
                 <div class="legend-row"><span class="legend-swatch" style="background:#2b3a67"></span>Night</div>`,
             describe: v => v == null ? 'No reading' : v ? 'Daytime' : 'Night'
@@ -463,7 +463,7 @@
         if (v.legend) html = v.legend();
         else {
             const gradient = v.stops.map(([, c], i) => `#${c} ${Math.round(100 * i / (v.stops.length - 1))}%`).join(', ');
-            html = `<div class="legend-title">${esc(v.title)}</div>
+            html = `<div class="legend-title">${esc(v.title)} ${helpFor(VIEW_HELP[view])}</div>
                 <div class="legend-ramp" style="background:linear-gradient(90deg, ${gradient})"></div>
                 <div class="legend-ends"><span>${esc(v.ends[0])}</span><span>${esc(v.ends[1])}</span></div>`;
         }
@@ -559,15 +559,175 @@
         try { expanded = localStorage.getItem('cards-expanded') === '1'; } catch { /* private mode */ }
         strip.classList.toggle('collapsed', !expanded);
         strip.innerHTML = cards.map(([label, value, sub, note]) =>
-            `<div class="stat"><div class="stat-label">${esc(label)}</div><div class="stat-value">${esc(value)}</div><div class="stat-sub">${esc(sub)}</div>
+            // The ⓘ stays on the same line as the label's last word
+            `<div class="stat"><div class="stat-label">${esc(label).replace(/(\S+)$/, '<span class="nw">$1')} ${helpFor(CARD_HELP[label])}</span></div><div class="stat-value">${esc(value)}</div><div class="stat-sub">${esc(sub)}</div>
             ${note ? `<div class="stat-asof${note.old ? ' old' : ''}"${note.old ? ' title="Older than this source is usually updated"' : ''}>${note.old ? '⚠ ' : ''}${esc(note.text)}</div>` : ''}</div>`).join('')
             + (cards.length > 7 ? `<button type="button" class="cards-toggle" data-cards aria-expanded="${expanded}">${expanded ? 'Show fewer ▴' : `Show all ${cards.length} ▾`}</button>` : '');
     }
 
+    // ---------- Info (ⓘ): what each figure means ----------
+
+    /** An ⓘ that shows a small explainer on hover, keyboard focus or tap. rows: a scale, with "Now" marked. */
+    function help(title, { intro = '', rows = [], note = '' } = {}) {
+        return `<span class="help" tabindex="0" role="button" aria-label="${esc(`About: ${title}`)}">ⓘ
+            <span class="help-box" role="tooltip">
+                <span class="kp-title">${esc(title)}</span>
+                ${intro ? `<span class="help-intro">${esc(intro)}</span>` : ''}
+                ${rows.length ? `<span class="kp-guide">${rows.map(r => `
+                    <span class="kp-row${r.now ? ' kp-now' : ''}">
+                        <span class="kp-num" style="background:${r.colour}">${esc(r.range)}</span>
+                        <span><strong>${esc(r.name)}</strong>${r.now ? ' <span class="pill warn">Now</span>' : ''}
+                        ${r.text ? `<span class="meta">${esc(r.text)}</span>` : ''}</span>
+                    </span>`).join('')}</span>` : ''}
+                ${note ? `<span class="help-note">${esc(note)}</span>` : ''}
+            </span></span>`;
+    }
+    /** Mark the row a value falls in: rows carry from (inclusive) and to (exclusive). */
+    const placeOn = (rows, value) => rows.map(r => ({ ...r, now: value != null && value >= r.from && value < r.to }));
+
+    const HELP = {
+        capitalTemp: () => help('Capital temperatures', {
+            intro: 'The temperature right now at each country’s capital, from the Open-Meteo weather model (not a weather station).',
+            note: 'Only places with a capital count, so Antarctica and uninhabited islands are left out. Times are when the model reading is for.'
+        }),
+        temperature: () => help('Temperature map', {
+            intro: 'Each country is coloured by the model temperature now at its capital, or its biggest town where it has no capital.',
+            note: 'A big country can be much warmer or colder away from its capital.'
+        }),
+        daynight: () => help('Day or night', {
+            intro: 'Whether the sun is up at each capital right now. The line between them moves west about 15° of longitude an hour.'
+        }),
+        weather: () => help('Weather now', {
+            intro: 'The Open-Meteo weather model at the capital (or biggest town), updated every hour. "Feels like" adds the effect of wind chill and humidity.',
+            note: 'Model values for one spot: local conditions, hills and coasts can differ.'
+        }),
+        aqi: () => {
+            const v = selected ? data.airquality?.countries?.[selected]?.aqi : null;
+            return help('Air quality index (US AQI)', {
+                intro: 'How clean the air is, from fine particles, ozone and other pollutants. Lower is better.',
+                rows: placeOn([
+                    { from: 0, to: 51, range: '0–50', name: 'Good', colour: '#7fc97f', text: 'Air is clean.' },
+                    { from: 51, to: 101, range: '51–100', name: 'Moderate', colour: '#c7e9a0', text: 'Fine for most people; very sensitive people may notice.' },
+                    { from: 101, to: 151, range: '101–150', name: 'Unhealthy for sensitive groups', colour: '#f2c418', text: 'People with asthma or heart conditions, children and older people should cut down long outdoor effort.' },
+                    { from: 151, to: 201, range: '151–200', name: 'Unhealthy', colour: '#ef8a1f', text: 'Everyone may start to feel effects.' },
+                    { from: 201, to: 301, range: '201–300', name: 'Very unhealthy', colour: '#e35d6a', text: 'Health alert: everyone should limit time outdoors.' },
+                    { from: 301, to: 9999, range: '301+', name: 'Hazardous', colour: '#b07cc6', text: 'Emergency conditions.' }
+                ], v),
+                note: 'A model estimate (Copernicus CAMS, via Open-Meteo) at the capital, not a measuring station. Desert dust counts too, so dry countries can score high.'
+            });
+        },
+        quakes: () => help('Earthquake magnitude', {
+            intro: 'Every quake of magnitude 2.5 or more recorded by the US Geological Survey in the last 7 days. Each step up releases about 32 times more energy.',
+            rows: [
+                { range: '2.5–3.9', name: 'Minor', colour: '#fde68a', text: 'Often felt nearby; rarely any damage.' },
+                { range: '4–4.9', name: 'Light', colour: '#fcd34d', text: 'Felt widely; minor damage possible.' },
+                { range: '5–5.9', name: 'Moderate', colour: '#f59e0b', text: 'Can damage weak buildings.' },
+                { range: '6–6.9', name: 'Strong', colour: '#ef6c3a', text: 'Serious damage near the centre.' },
+                { range: '7+', name: 'Major', colour: '#e35d6a', text: 'Damage over a wide area.' }
+            ],
+            note: 'Small quakes are mostly recorded in the US; elsewhere the list is complete from about magnitude 4.5. Quakes up to 150 km off a coast count for that country.'
+        }),
+        wildfires: () => help('Wildfires tracked', {
+            intro: 'Open wildfires listed by NASA’s Earth Observatory Natural Event Tracker (EONET) in the last 30 days.',
+            note: 'Most reports come from the US and Canada, so fires elsewhere are undercounted. Planned burns appear as "Prescribed Fire".'
+        }),
+        storms: () => help('Storms tracked', {
+            intro: 'Tropical cyclones (hurricanes, typhoons) and other severe storms NASA is following now. Switch on "Fires and storms" to see each one; the dashed line is its path so far.',
+            note: 'Wind speeds are in knots (1 knot is about 1.85 km/h).'
+        }),
+        events: () => help('Fires, storms and other events', {
+            intro: 'Natural events NASA’s EONET lists as open, seen in the last 30 days: wildfires, severe storms, volcanoes, floods, dust and more.',
+            note: 'Events up to 100 km off a coast count for that country. Wildfire reports come mostly from the US and Canada.'
+        }),
+        kp: () => {
+            const v = data.aurora?.kpNow;
+            return help('Kp index: Northern and Southern Lights', {
+                intro: 'How disturbed the Earth’s magnetic field is, from 0 to 9, measured every 3 hours by NOAA. The higher it is, the further from the poles the lights reach.',
+                rows: placeOn([
+                    { from: 0, to: 3, range: '0–2', name: 'Quiet', colour: '#c7e9c0', text: 'Lights stay over the Arctic and Antarctic.' },
+                    { from: 3, to: 5, range: '3–4', name: 'Active', colour: '#a1d99b', text: 'Iceland, northern Norway, Alaska, northern Canada.' },
+                    { from: 5, to: 6, range: '5', name: 'Minor storm', colour: '#f2c418', text: 'Can reach Scotland, southern Norway, the northern US border.' },
+                    { from: 6, to: 7, range: '6', name: 'Moderate storm', colour: '#ef8a1f', text: 'Possible from Ireland, northern England and Denmark.' },
+                    { from: 7, to: 8, range: '7', name: 'Strong storm', colour: '#e35d6a', text: 'Can reach central Europe and the northern US states.' },
+                    { from: 8, to: 10, range: '8–9', name: 'Severe storm', colour: '#b07cc6', text: 'Rare: seen as far as southern Europe and the southern US.' }
+                ], v),
+                note: 'You also need a dark, clear sky away from city lights. The chance shown for each capital is a rough guide.'
+            });
+        },
+        euro: () => help('Exchange rates', {
+            intro: 'The European Central Bank’s reference rates, set each working day around 14:15 Central European Time for about 30 currencies.',
+            note: 'For other currencies the page shows the World Bank’s official rate averaged over a year. Banks and card providers add their own margin, so you’ll get a little less.'
+        }),
+        population: () => help('Population', {
+            intro: 'World Bank estimate of everyone living in the country, for the latest year available.',
+            note: 'The map uses a stepped scale (10,000, 1 million, 100 million…) so small and huge countries both show up.'
+        }),
+        gdp: () => help('Income: GDP per person', {
+            intro: 'The value of everything a country produces in a year, divided by its population, in US dollars at market exchange rates (World Bank).',
+            note: 'Not adjusted for local prices, so it understates how far money goes in cheaper countries. An average: it doesn’t show how evenly income is shared.'
+        }),
+        life: () => help('Life expectancy', {
+            intro: 'How long a baby born in that year would live on average if today’s death rates stayed the same (World Bank).',
+            note: 'Deaths in childhood pull the average down a lot, so adults often live well past it.'
+        }),
+        facts: () => help('Facts', {
+            intro: 'World Bank World Development Indicators: population, GDP per person (US dollars at market rates) and life expectancy at birth.',
+            note: 'Each figure is the latest year the World Bank has for that country, shown in brackets.'
+        }),
+        electricity: () => help('Where electricity comes from', {
+            intro: 'Share of the country’s electricity generated from each source in the latest full year (Ember and the Energy Institute, via Our World in Data). "Renewables and nuclear" both produce very little CO₂.',
+            rows: [
+                { range: '<100', name: 'Very clean', colour: '#7cc47a', text: 'Grams of CO₂ per kWh: mostly hydro, wind, solar or nuclear.' },
+                { range: '100–400', name: 'Mixed', colour: '#d9d36b', text: 'Some gas or coal alongside clean sources.' },
+                { range: '400–600', name: 'Fossil-heavy', colour: '#e0a35b', text: 'Mostly gas, oil or coal.' },
+                { range: '600+', name: 'Coal-heavy', colour: '#a9714b', text: 'Coal makes up most of it.' }
+            ],
+            note: 'This is electricity only, not all energy: heating and transport often still run on fossil fuels.'
+        }),
+        webcams: () => help('Webcams', {
+            intro: 'The most-watched public webcams on each continent, up to 5 per country, from Windy.com. "Show camera" opens Windy’s player with the latest picture and a timelapse of the day.',
+            note: 'A camera whose picture hasn’t changed for a day is marked ⚠: it may be stuck or offline.'
+        })
+    };
+    const SECTION_HELP = {
+        'Weather now': 'weather', 'Air quality': 'aqi', 'Worst air right now': 'aqi',
+        'Earthquakes this week': 'quakes', 'Biggest earthquakes this week': 'quakes',
+        'Northern Lights': 'kp', 'Southern Lights': 'kp', 'Northern and Southern Lights': 'kp',
+        'Money': 'euro', 'Exchange rates': 'euro', 'Facts': 'facts', 'Webcams': 'webcams',
+        'Electricity': 'electricity', 'Cleanest electricity': 'electricity', 'Most fossil-fuelled electricity': 'electricity',
+        'Fires, storms and other events': 'events', 'Hottest capitals right now': 'capitalTemp', 'Coldest capitals right now': 'capitalTemp'
+    };
+    const CARD_HELP = {
+        'Hottest capital now': 'capitalTemp', 'Coldest capital now': 'capitalTemp', 'Biggest quake this week': 'quakes', 'Earthquakes this week': 'quakes',
+        'Wildfires tracked': 'wildfires', 'Storms tracked': 'storms', 'Worst air now': 'aqi', 'Northern Lights': 'kp', 'Euro': 'euro'
+    };
+    const VIEW_HELP = { temperature: 'temperature', daynight: 'daynight', air: 'aqi', population: 'population', gdp: 'gdp', life: 'life', clean: 'electricity' };
+    const helpFor = key => (key && HELP[key] ? HELP[key]() : '');
+
+    // Help boxes are position: fixed so scrolling panels can't clip them; place each beside its ⓘ,
+    // kept inside the window (phones pin them across the screen in CSS instead)
+    function placeHelp(e) {
+        const el = e.target.closest?.('.help');
+        if (!el || window.innerWidth <= 560) return;
+        const box = el.querySelector('.help-box');
+        const icon = el.getBoundingClientRect();
+        box.style.visibility = 'hidden';
+        box.style.display = 'block';
+        const w = box.offsetWidth, h = box.offsetHeight;
+        box.style.display = '';
+        box.style.visibility = '';
+        const left = Math.min(Math.max(8, icon.right - w), window.innerWidth - w - 8);
+        const below = icon.bottom + 6;
+        box.style.left = `${left}px`;
+        box.style.top = `${below + h > window.innerHeight - 8 ? Math.max(8, icon.top - h - 6) : below}px`;
+    }
+    document.addEventListener('mouseover', placeHelp);
+    document.addEventListener('focusin', placeHelp);
+
     // ---------- Panel ----------
 
     function section(title, body, link) {
-        return `<section class="section"><h3><span>${esc(title)}</span>${link ? `<a href="${esc(link[1])}" target="_blank" rel="noopener">${esc(link[0])} ↗</a>` : ''}</h3>${body}</section>`;
+        return `<section class="section"><h3><span>${esc(title)} ${helpFor(SECTION_HELP[title])}</span>${link ? `<a href="${esc(link[1])}" target="_blank" rel="noopener">${esc(link[0])} ↗</a>` : ''}</h3>${body}</section>`;
     }
     const asOf = (text, old = false) => `<p class="asof${old ? ' old' : ''}"${old ? ' title="Older than this source is usually updated"' : ''}>${old ? '⚠ ' : ''}${esc(text)}</p>`;
     const unavailable = '<p class="empty">Not available right now.</p>';
