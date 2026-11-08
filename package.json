@@ -1,0 +1,16 @@
+{
+  "name": "world-now",
+  "version": "1.0.0",
+  "private": true,
+  "description": "World Now: a clickable map of live public data for every country",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "countries": "node scripts/prepare-countries.js",
+    "preview": "npx --yes serve site",
+    "test": "node --test test/*.test.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "MIT"
+}

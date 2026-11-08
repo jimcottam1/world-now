@@ -1,0 +1,161 @@
+[
+ {
+  "latitude": 53.347878,
+  "longitude": -6.2376556,
+  "generationtime_ms": 0.7197856903076172,
+  "utc_offset_seconds": 0,
+  "timezone": "Europe/Dublin",
+  "timezone_abbreviation": "GMT",
+  "elevation": 11,
+  "current_units": {
+   "time": "iso8601",
+   "interval": "seconds",
+   "temperature_2m": "°C",
+   "apparent_temperature": "°C",
+   "relative_humidity_2m": "%",
+   "weather_code": "wmo code",
+   "wind_speed_10m": "km/h",
+   "wind_gusts_10m": "km/h",
+   "precipitation": "mm",
+   "is_day": ""
+  },
+  "current": {
+   "time": "2026-11-08T21:15",
+   "interval": 900,
+   "temperature_2m": 7.8,
+   "apparent_temperature": 6.4,
+   "relative_humidity_2m": 87,
+   "weather_code": 0,
+   "wind_speed_10m": 2.5,
+   "wind_gusts_10m": 4,
+   "precipitation": 0,
+   "is_day": 0
+  },
+  "daily_units": {
+   "time": "iso8601",
+   "weather_code": "wmo code",
+   "temperature_2m_max": "°C",
+   "temperature_2m_min": "°C",
+   "precipitation_sum": "mm",
+   "sunrise": "iso8601",
+   "sunset": "iso8601"
+  },
+  "daily": {
+   "time": [
+    "2026-11-08",
+    "2026-11-09",
+    "2026-11-10"
+   ],
+   "weather_code": [
+    3,
+    53,
+    3
+   ],
+   "temperature_2m_max": [
+    11,
+    12.2,
+    11.1
+   ],
+   "temperature_2m_min": [
+    6.4,
+    8.4,
+    9.8
+   ],
+   "precipitation_sum": [
+    0,
+    0.5,
+    0
+   ],
+   "sunrise": [
+    "2026-11-08T07:36",
+    "2026-11-09T07:38",
+    "2026-11-10T07:40"
+   ],
+   "sunset": [
+    "2026-11-08T16:39",
+    "2026-11-09T16:38",
+    "2026-11-10T16:36"
+   ]
+  }
+ },
+ {
+  "latitude": 28.576448,
+  "longitude": 77.18678,
+  "generationtime_ms": 0.20873546600341797,
+  "utc_offset_seconds": 19800,
+  "timezone": "Asia/Kolkata",
+  "timezone_abbreviation": "GMT+5:30",
+  "elevation": 224,
+  "location_id": 1,
+  "current_units": {
+   "time": "iso8601",
+   "interval": "seconds",
+   "temperature_2m": "°C",
+   "apparent_temperature": "°C",
+   "relative_humidity_2m": "%",
+   "weather_code": "wmo code",
+   "wind_speed_10m": "km/h",
+   "wind_gusts_10m": "km/h",
+   "precipitation": "mm",
+   "is_day": ""
+  },
+  "current": {
+   "time": "2026-11-09T02:45",
+   "interval": 900,
+   "temperature_2m": 19.5,
+   "apparent_temperature": 20.4,
+   "relative_humidity_2m": 76,
+   "weather_code": 0,
+   "wind_speed_10m": 5.4,
+   "wind_gusts_10m": 10.4,
+   "precipitation": 0,
+   "is_day": 0
+  },
+  "daily_units": {
+   "time": "iso8601",
+   "weather_code": "wmo code",
+   "temperature_2m_max": "°C",
+   "temperature_2m_min": "°C",
+   "precipitation_sum": "mm",
+   "sunrise": "iso8601",
+   "sunset": "iso8601"
+  },
+  "daily": {
+   "time": [
+    "2026-11-09",
+    "2026-11-10",
+    "2026-11-11"
+   ],
+   "weather_code": [
+    3,
+    1,
+    0
+   ],
+   "temperature_2m_max": [
+    27.9,
+    27.7,
+    28.2
+   ],
+   "temperature_2m_min": [
+    18.1,
+    17.8,
+    17.5
+   ],
+   "precipitation_sum": [
+    0,
+    0,
+    0
+   ],
+   "sunrise": [
+    "2026-11-09T06:38",
+    "2026-11-10T06:39",
+    "2026-11-11T06:40"
+   ],
+   "sunset": [
+    "2026-11-09T17:30",
+    "2026-11-10T17:30",
+    "2026-11-11T17:29"
+   ]
+  }
+ }
+]

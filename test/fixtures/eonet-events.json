@@ -1,0 +1,297 @@
+{
+ "title": "EONET Events",
+ "description": "Natural events from EONET.",
+ "link": "https://eonet.gsfc.nasa.gov/api/v3/events",
+ "events": [
+  {
+   "id": "EONET_25728",
+   "title": "Super Typhoon In-fa",
+   "description": null,
+   "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_25728",
+   "closed": null,
+   "categories": [
+    {
+     "id": "severeStorms",
+     "title": "Severe Storms"
+    }
+   ],
+   "sources": [
+    {
+     "id": "JTWC",
+     "url": "https://www.metoc.navy.mil/jtwc/products/wp3026.tcw"
+    }
+   ],
+   "geometry": [
+    {
+     "magnitudeValue": 85,
+     "magnitudeUnit": "kts",
+     "date": "2026-11-04T00:00:00Z",
+     "type": "Point",
+     "coordinates": [
+      138.4,
+      24.4
+     ]
+    },
+    {
+     "magnitudeValue": 80,
+     "magnitudeUnit": "kts",
+     "date": "2026-11-04T06:00:00Z",
+     "type": "Point",
+     "coordinates": [
+      138.3,
+      25
+     ]
+    },
+    {
+     "magnitudeValue": 80,
+     "magnitudeUnit": "kts",
+     "date": "2026-11-04T12:00:00Z",
+     "type": "Point",
+     "coordinates": [
+      138.4,
+      25.8
+     ]
+    },
+    {
+     "magnitudeValue": 75,
+     "magnitudeUnit": "kts",
+     "date": "2026-11-04T18:00:00Z",
+     "type": "Point",
+     "coordinates": [
+      138.5,
+      27.1
+     ]
+    },
+    {
+     "magnitudeValue": 75,
+     "magnitudeUnit": "kts",
+     "date": "2026-11-05T00:00:00Z",
+     "type": "Point",
+     "coordinates": [
+      140,
+      28.1
+     ]
+    },
+    {
+     "magnitudeValue": 60,
+     "magnitudeUnit": "kts",
+     "date": "2026-11-05T06:00:00Z",
+     "type": "Point",
+     "coordinates": [
+      141.5,
+      29.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "EONET_26057",
+   "title": "Wildfire Wild River, Coos, New Hampshire",
+   "description": "5 Miles SW from Shelburne, NH",
+   "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_26057",
+   "closed": null,
+   "categories": [
+    {
+     "id": "wildfires",
+     "title": "Wildfires"
+    }
+   ],
+   "sources": [
+    {
+     "id": "IRWIN",
+     "url": "https://irwin.doi.gov/observer/incidents/2026-NHWMF-000182"
+    }
+   ],
+   "geometry": [
+    {
+     "magnitudeValue": 982,
+     "magnitudeUnit": "acres",
+     "date": "2026-11-02T07:58:00Z",
+     "type": "Point",
+     "coordinates": [
+      -71.031283,
+      44.330583
+     ]
+    }
+   ]
+  },
+  {
+   "id": "EONET_25984",
+   "title": "Prescribed Fire Dry Lake Hills Piles RX, Coconino, Arizona",
+   "description": null,
+   "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_25984",
+   "closed": null,
+   "categories": [
+    {
+     "id": "wildfires",
+     "title": "Wildfires"
+    }
+   ],
+   "sources": [
+    {
+     "id": "IRWIN",
+     "url": "https://irwin.doi.gov/observer/incidents/2026-AZCOF-001612"
+    }
+   ],
+   "geometry": [
+    {
+     "magnitudeValue": 902,
+     "magnitudeUnit": "acres",
+     "date": "2026-10-30T10:13:00Z",
+     "type": "Point",
+     "coordinates": [
+      -111.616667,
+      35.266667
+     ]
+    }
+   ]
+  },
+  {
+   "id": "EONET_25986",
+   "title": "Prescribed Fire McCarty Piles RX, Coconino, Arizona",
+   "description": null,
+   "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_25986",
+   "closed": null,
+   "categories": [
+    {
+     "id": "wildfires",
+     "title": "Wildfires"
+    }
+   ],
+   "sources": [
+    {
+     "id": "IRWIN",
+     "url": "https://irwin.doi.gov/observer/incidents/2026-AZCOF-001609"
+    }
+   ],
+   "geometry": [
+    {
+     "magnitudeValue": 832,
+     "magnitudeUnit": "acres",
+     "date": "2026-10-29T12:16:00Z",
+     "type": "Point",
+     "coordinates": [
+      -111.262694,
+      34.513944
+     ]
+    }
+   ]
+  },
+  {
+   "id": "EONET_25985",
+   "title": "Prescribed Fire Freidland-Chimney Piles RX, Coconino, Arizona",
+   "description": null,
+   "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_25985",
+   "closed": null,
+   "categories": [
+    {
+     "id": "wildfires",
+     "title": "Wildfires"
+    }
+   ],
+   "sources": [
+    {
+     "id": "IRWIN",
+     "url": "https://irwin.doi.gov/observer/incidents/2026-AZCOF-001608"
+    }
+   ],
+   "geometry": [
+    {
+     "magnitudeValue": 1029,
+     "magnitudeUnit": "acres",
+     "date": "2026-10-29T11:37:00Z",
+     "type": "Point",
+     "coordinates": [
+      -111.666667,
+      35.283333
+     ]
+    }
+   ]
+  },
+  {
+   "id": "EONET_2736",
+   "title": "Iceberg B22A",
+   "description": null,
+   "link": "https://eonet.gsfc.nasa.gov/api/v3/events/EONET_2736",
+   "closed": null,
+   "categories": [
+    {
+     "id": "seaLakeIce",
+     "title": "Sea and Lake Ice"
+    }
+   ],
+   "sources": [
+    {
+     "id": "BYU_ICE",
+     "url": "http://www.scp.byu.edu/data/iceberg/ascat/b22a.ascat"
+    },
+    {
+     "id": "NATICE",
+     "url": "https://usicecenter.gov/pub/Iceberg_Tabular.csv"
+    }
+   ],
+   "geometry": [
+    {
+     "magnitudeValue": 725,
+     "magnitudeUnit": "NM^2",
+     "date": "2026-07-03T00:00:00Z",
+     "type": "Point",
+     "coordinates": [
+      174.74,
+      -69.18
+     ]
+    },
+    {
+     "magnitudeValue": 725,
+     "magnitudeUnit": "NM^2",
+     "date": "2026-07-30T00:00:00Z",
+     "type": "Point",
+     "coordinates": [
+      172.86,
+      -69.01
+     ]
+    },
+    {
+     "magnitudeValue": 725,
+     "magnitudeUnit": "NM^2",
+     "date": "2026-08-20T00:00:00Z",
+     "type": "Point",
+     "coordinates": [
+      171.19,
+      -69.24
+     ]
+    },
+    {
+     "magnitudeValue": 725,
+     "magnitudeUnit": "NM^2",
+     "date": "2026-09-04T00:00:00Z",
+     "type": "Point",
+     "coordinates": [
+      167.34,
+      -69.79
+     ]
+    },
+    {
+     "magnitudeValue": 725,
+     "magnitudeUnit": "NM^2",
+     "date": "2026-09-10T00:00:00Z",
+     "type": "Point",
+     "coordinates": [
+      164.79,
+      -69.88
+     ]
+    },
+    {
+     "magnitudeValue": 725,
+     "magnitudeUnit": "NM^2",
+     "date": "2026-11-06T00:00:00Z",
+     "type": "Point",
+     "coordinates": [
+      163.59,
+      -69.59
+     ]
+    }
+   ]
+  }
+ ]
+}

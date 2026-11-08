@@ -1,0 +1,132 @@
+[
+ {
+  "page": 1,
+  "pages": 1,
+  "per_page": 400,
+  "total": 8,
+  "sourceid": null,
+  "lastupdated": "2026-10-08"
+ },
+ [
+  {
+   "indicator": {
+    "id": "SP.DYN.LE00.IN",
+    "value": "Life expectancy at birth, total (years)"
+   },
+   "country": {
+    "id": "ZH",
+    "value": "Africa Eastern and Southern"
+   },
+   "countryiso3code": "AFE",
+   "date": "2024",
+   "value": 65.3499304660954,
+   "obs_status": "",
+   "decimal": 0
+  },
+  {
+   "indicator": {
+    "id": "SP.DYN.LE00.IN",
+    "value": "Life expectancy at birth, total (years)"
+   },
+   "country": {
+    "id": "1W",
+    "value": "World"
+   },
+   "countryiso3code": "WLD",
+   "date": "2024",
+   "value": 73.4818184164654,
+   "obs_status": "",
+   "decimal": 0
+  },
+  {
+   "indicator": {
+    "id": "SP.DYN.LE00.IN",
+    "value": "Life expectancy at birth, total (years)"
+   },
+   "country": {
+    "id": "FR",
+    "value": "France"
+   },
+   "countryiso3code": "FRA",
+   "date": "2024",
+   "value": 82.9804878048781,
+   "obs_status": "",
+   "decimal": 0
+  },
+  {
+   "indicator": {
+    "id": "SP.DYN.LE00.IN",
+    "value": "Life expectancy at birth, total (years)"
+   },
+   "country": {
+    "id": "IN",
+    "value": "India"
+   },
+   "countryiso3code": "IND",
+   "date": "2024",
+   "value": 72.235,
+   "obs_status": "",
+   "decimal": 0
+  },
+  {
+   "indicator": {
+    "id": "SP.DYN.LE00.IN",
+    "value": "Life expectancy at birth, total (years)"
+   },
+   "country": {
+    "id": "IE",
+    "value": "Ireland"
+   },
+   "countryiso3code": "IRL",
+   "date": "2024",
+   "value": 83.009756097561,
+   "obs_status": "",
+   "decimal": 0
+  },
+  {
+   "indicator": {
+    "id": "SP.DYN.LE00.IN",
+    "value": "Life expectancy at birth, total (years)"
+   },
+   "country": {
+    "id": "XK",
+    "value": "Kosovo"
+   },
+   "countryiso3code": "XKX",
+   "date": "2024",
+   "value": 78.222,
+   "obs_status": "",
+   "decimal": 0
+  },
+  {
+   "indicator": {
+    "id": "SP.DYN.LE00.IN",
+    "value": "Life expectancy at birth, total (years)"
+   },
+   "country": {
+    "id": "TV",
+    "value": "Tuvalu"
+   },
+   "countryiso3code": "TUV",
+   "date": "2024",
+   "value": 67.259,
+   "obs_status": "",
+   "decimal": 0
+  },
+  {
+   "indicator": {
+    "id": "SP.DYN.LE00.IN",
+    "value": "Life expectancy at birth, total (years)"
+   },
+   "country": {
+    "id": "GB",
+    "value": "United Kingdom"
+   },
+   "countryiso3code": "GBR",
+   "date": "2024",
+   "value": 81.3868536585366,
+   "obs_status": "",
+   "decimal": 0
+  }
+ ]
+]

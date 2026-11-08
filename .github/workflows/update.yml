@@ -1,0 +1,81 @@
+name: Update and Publish
+
+on:
+  # Every hour, at an off-peak minute (GitHub delays jobs scheduled on the hour the most)
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+# One update at a time; a newer run waits rather than cancelling one mid-deploy
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci --ignore-scripts
+
+      # The tests use saved responses (no network), so they only fail when the code is wrong.
+      # A failure stops the build here, and the live site keeps its last good version.
+      - name: Test
+        run: npm test
+
+      # Slow-changing layers and last good copies carry over between runs in the Actions cache
+      - name: Restore state
+        uses: actions/cache/restore@v4
+        with:
+          path: state
+          key: state-${{ github.run_id }}
+          restore-keys: state-
+
+      - name: Fetch data and build site
+        env:
+          WINDY_API_KEY: ${{ secrets.WINDY_API_KEY }}
+        run: npm run build
+
+      - name: Save state
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: state
+          key: state-${{ github.run_id }}
+
+      # Open (or close) a GitHub issue when a source has been failing for over a day
+      - name: Check data sources
+        if: always()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/check-sources.js
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

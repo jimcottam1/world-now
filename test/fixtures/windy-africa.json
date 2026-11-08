@@ -1,0 +1,238 @@
+{
+ "total": 8,
+ "webcams": [
+  {
+   "title": "Milnerton › South-west: Table mountain - Cape Town",
+   "viewCount": 1746461,
+   "webcamId": 1170887551,
+   "status": "active",
+   "lastUpdatedOn": "2026-11-08T19:56:18.000Z",
+   "location": {
+    "city": "Milnerton",
+    "region": "Western Cape",
+    "region_code": "ZA.11",
+    "country": "South Africa",
+    "country_code": "ZA",
+    "continent": "Africa",
+    "continent_code": "AF",
+    "latitude": -33.88282,
+    "longitude": 18.49222
+   },
+   "player": {
+    "day": "https://webcams.windy.com/webcams/public/embed/player/1170887551/day",
+    "month": "https://webcams.windy.com/webcams/public/embed/player/1170887551/month",
+    "year": "https://webcams.windy.com/webcams/public/embed/player/1170887551/year",
+    "lifetime": "https://webcams.windy.com/webcams/public/embed/player/1170887551/lifetime"
+   },
+   "urls": {
+    "detail": "https://windy.com/webcams/1170887551",
+    "edit": "https://webcams-admin.windy.com/webcams/1170887551",
+    "provider": "https://www.kapstadt.de/"
+   }
+  },
+  {
+   "title": "Santa Maria: Pontao",
+   "viewCount": 829650,
+   "webcamId": 1181820895,
+   "status": "active",
+   "lastUpdatedOn": "2026-11-08T21:12:02.000Z",
+   "location": {
+    "city": "Santa Maria",
+    "region": "Sal",
+    "region_code": "CV.08",
+    "country": "Cape Verde",
+    "country_code": "CV",
+    "continent": "Africa",
+    "continent_code": "AF",
+    "latitude": 16.59755,
+    "longitude": -22.90774
+   },
+   "player": {
+    "live": "https://webcams.windy.com/webcams/public/embed/player/1181820895/live",
+    "day": "https://webcams.windy.com/webcams/public/embed/player/1181820895/day",
+    "month": "https://webcams.windy.com/webcams/public/embed/player/1181820895/month",
+    "year": "https://webcams.windy.com/webcams/public/embed/player/1181820895/year",
+    "lifetime": "https://webcams.windy.com/webcams/public/embed/player/1181820895/lifetime"
+   },
+   "urls": {
+    "detail": "https://windy.com/webcams/1181820895",
+    "edit": "https://webcams-admin.windy.com/webcams/1181820895",
+    "provider": "http://g0.ipcamlive.com/player/player.php?alias=5909f8967b7d3"
+   }
+  },
+  {
+   "title": "Oukaimeden › South-east: Observatoire Trappist",
+   "viewCount": 630034,
+   "webcamId": 1622904818,
+   "status": "active",
+   "lastUpdatedOn": "2026-11-08T21:06:56.000Z",
+   "location": {
+    "city": "Oukaimeden",
+    "region": "Marrakech-Safi",
+    "region_code": "MA.07",
+    "country": "Morocco",
+    "country_code": "MA",
+    "continent": "Africa",
+    "continent_code": "AF",
+    "latitude": 31.20611,
+    "longitude": -7.86658
+   },
+   "player": {
+    "day": "https://webcams.windy.com/webcams/public/embed/player/1622904818/day",
+    "month": "https://webcams.windy.com/webcams/public/embed/player/1622904818/month",
+    "year": "https://webcams.windy.com/webcams/public/embed/player/1622904818/year",
+    "lifetime": "https://webcams.windy.com/webcams/public/embed/player/1622904818/lifetime"
+   },
+   "urls": {
+    "detail": "https://windy.com/webcams/1622904818",
+    "edit": "https://webcams-admin.windy.com/webcams/1622904818",
+    "provider": "http://www2.orca.ulg.ac.be/TRAPPIST/Camera/images/TNcamera.jpg"
+   }
+  },
+  {
+   "title": "Hurghada › North-east: Tiger Kite and Surf School Main Place",
+   "viewCount": 581504,
+   "webcamId": 1171048192,
+   "status": "active",
+   "lastUpdatedOn": "2026-11-08T21:06:12.000Z",
+   "location": {
+    "city": "Hurghada",
+    "region": "Red Sea",
+    "region_code": "EG.02",
+    "country": "Egypt",
+    "country_code": "EG",
+    "continent": "Africa",
+    "continent_code": "AF",
+    "latitude": 27.10853,
+    "longitude": 33.83062
+   },
+   "player": {
+    "day": "https://webcams.windy.com/webcams/public/embed/player/1171048192/day",
+    "month": "https://webcams.windy.com/webcams/public/embed/player/1171048192/month",
+    "year": "https://webcams.windy.com/webcams/public/embed/player/1171048192/year",
+    "lifetime": "https://webcams.windy.com/webcams/public/embed/player/1171048192/lifetime"
+   },
+   "urls": {
+    "detail": "https://windy.com/webcams/1171048192",
+    "edit": "https://webcams-admin.windy.com/webcams/1171048192",
+    "provider": "https://www.tommy-friedl.com/en"
+   }
+  },
+  {
+   "title": "Écroignard › South-west: Grand Baie › South-West",
+   "viewCount": 504118,
+   "webcamId": 1333173050,
+   "status": "active",
+   "lastUpdatedOn": "2026-11-08T21:06:56.000Z",
+   "location": {
+    "city": "Écroignard",
+    "region": "Flacq",
+    "region_code": "MU.13",
+    "country": "Mauritius",
+    "country_code": "MU",
+    "continent": "Africa",
+    "continent_code": "AF",
+    "latitude": -20.23881,
+    "longitude": 57.74524
+   },
+   "player": {
+    "day": "https://webcams.windy.com/webcams/public/embed/player/1333173050/day",
+    "month": "https://webcams.windy.com/webcams/public/embed/player/1333173050/month",
+    "year": "https://webcams.windy.com/webcams/public/embed/player/1333173050/year",
+    "lifetime": "https://webcams.windy.com/webcams/public/embed/player/1333173050/lifetime"
+   },
+   "urls": {
+    "detail": "https://windy.com/webcams/1333173050",
+    "edit": "https://webcams-admin.windy.com/webcams/1333173050",
+    "provider": "http://www.meteomauritius.altervista.org/wxwebcam.php"
+   }
+  },
+  {
+   "title": "Mossel Bay › North: Mossel Bay Harbour - Santos Beach Mosselbay - Outeniqua Mountain View Lodge",
+   "viewCount": 210718,
+   "webcamId": 1338449105,
+   "status": "active",
+   "lastUpdatedOn": "2026-11-08T21:07:18.000Z",
+   "location": {
+    "city": "Mossel Bay",
+    "region": "Western Cape",
+    "region_code": "ZA.11",
+    "country": "South Africa",
+    "country_code": "ZA",
+    "continent": "Africa",
+    "continent_code": "AF",
+    "latitude": -34.18631,
+    "longitude": 22.15056
+   },
+   "player": {
+    "day": "https://webcams.windy.com/webcams/public/embed/player/1338449105/day",
+    "month": "https://webcams.windy.com/webcams/public/embed/player/1338449105/month",
+    "year": "https://webcams.windy.com/webcams/public/embed/player/1338449105/year",
+    "lifetime": "https://webcams.windy.com/webcams/public/embed/player/1338449105/lifetime"
+   },
+   "urls": {
+    "detail": "https://windy.com/webcams/1338449105",
+    "edit": "https://webcams-admin.windy.com/webcams/1338449105",
+    "provider": "https://www.avenues-guesthouse.com/webcam/"
+   }
+  },
+  {
+   "title": "Vingujini: The Sands At Chale Island",
+   "viewCount": 187986,
+   "webcamId": 1414851234,
+   "status": "active",
+   "lastUpdatedOn": "2026-11-08T21:07:49.000Z",
+   "location": {
+    "city": "Vingujini",
+    "region": "Kwale",
+    "region_code": "KE.28",
+    "country": "Kenya",
+    "country_code": "KE",
+    "continent": "Africa",
+    "continent_code": "AF",
+    "latitude": -4.44295,
+    "longitude": 39.53658
+   },
+   "player": {
+    "day": "https://webcams.windy.com/webcams/public/embed/player/1414851234/day",
+    "month": "https://webcams.windy.com/webcams/public/embed/player/1414851234/month",
+    "year": "https://webcams.windy.com/webcams/public/embed/player/1414851234/year",
+    "lifetime": "https://webcams.windy.com/webcams/public/embed/player/1414851234/lifetime"
+   },
+   "urls": {
+    "detail": "https://windy.com/webcams/1414851234",
+    "edit": "https://webcams-admin.windy.com/webcams/1414851234",
+    "provider": "http://www.chale-eye.com/"
+   }
+  },
+  {
+   "title": "Swakopmund",
+   "viewCount": 183745,
+   "webcamId": 1253685675,
+   "status": "active",
+   "lastUpdatedOn": "2026-11-08T21:07:08.000Z",
+   "location": {
+    "city": "Swakopmund",
+    "region": "Erongo Region",
+    "region_code": "NA.29",
+    "country": "Namibia",
+    "country_code": "NA",
+    "continent": "Africa",
+    "continent_code": "AF",
+    "latitude": -22.68076,
+    "longitude": 14.52043
+   },
+   "player": {
+    "day": "https://webcams.windy.com/webcams/public/embed/player/1253685675/day",
+    "month": "https://webcams.windy.com/webcams/public/embed/player/1253685675/month",
+    "year": "https://webcams.windy.com/webcams/public/embed/player/1253685675/year",
+    "lifetime": "https://webcams.windy.com/webcams/public/embed/player/1253685675/lifetime"
+   },
+   "urls": {
+    "detail": "https://windy.com/webcams/1253685675",
+    "edit": "https://webcams-admin.windy.com/webcams/1253685675",
+    "provider": "https://namibiaweather.info/namibiawebcam.php"
+   }
+  }
+ ]
+}
