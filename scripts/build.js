@@ -52,7 +52,7 @@ async function build() {
     // content so a returning visitor never gets a new page with old code
     const indexPath = path.join(SITE_DIR, 'index.html');
     let index = fs.readFileSync(indexPath, 'utf8');
-    for (const asset of ['app.js', 'styles.css']) {
+    for (const asset of ['sky.js', 'app.js', 'styles.css']) {
         const hash = crypto.createHash('sha1').update(fs.readFileSync(path.join(PUBLIC_DIR, asset))).digest('hex').slice(0, 8);
         index = index.replace(`"${asset}"`, `"${asset}?v=${hash}"`);
     }

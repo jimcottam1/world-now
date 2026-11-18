@@ -9,7 +9,8 @@
     let countryLayer = null;
     let selected = null;    // country id
     let view = 'temperature';
-    const overlays = { quakes: true, events: true, webcams: false };
+    // Night first, so it's drawn under the dots
+    const overlays = { night: true, quakes: true, events: true, webcams: false };
     const overlayLayers = {};
 
     // ---------- Helpers ----------
@@ -221,7 +222,14 @@
         : '';
     const quakeLine = q => `Magnitude ${esc(q.mag)} · ${esc(q.depth ?? '?')} km deep`;
 
+    // The night side of the Earth, worked out from the clock (sky.js) and moved every few minutes
+    const nightShape = () => L.polygon(Sky.nightPolygon(new Date()), { stroke: false, fillColor: '#0b1530', fillOpacity: 0.28, interactive: false });
+
     const OVERLAYS = {
+        night: {
+            label: 'Night', colour: '#2b3a67', name: 'Night',
+            build: () => L.layerGroup([nightShape()])
+        },
         quakes: {
             label: 'Earthquakes', colour: '#d7263d', name: 'Earthquake',
             build: () => L.layerGroup((data.earthquakes?.quakes || []).map(q => L.circleMarker([q.lat, q.lon], {
@@ -260,6 +268,7 @@
 
     // What each dot colour means: [colour, label]
     const DOT_KEYS = {
+        night: [['#0b1530', 'Shaded: where it’s night now']],
         quakes: [['#d7263d', 'Last 24 hours'], ['#f59e0b', 'Last 7 days'], ['#bbb', 'Bigger circle = bigger quake']],
         events: [['#e4572e', 'Wildfire'], ['#2f6fd6', 'Storm (dashed line: its path)'], ['#8b1e3f', 'Volcano'], ['#7c8b85', 'Other']],
         webcams: [['#be185d', 'Webcam (opens on Windy.com)'], ['#e3a6c4', 'Picture not updated for over a day']]
@@ -422,6 +431,7 @@
         }
     });
     new MapButtons().addTo(map);
+    setInterval(() => overlayLayers.night?.eachLayer(l => l.setLatLngs(Sky.nightPolygon(new Date()))), 5 * 60000);
     const resetView = () => map.flyTo([25, 10], window.innerWidth < 560 ? 1.5 : 2, { duration: 0.6 });
 
     // Scroll-wheel zoom only after the map is clicked
@@ -554,6 +564,11 @@
         // ECB rates are set on working days, so a weekend or holiday leaves them a few days old
         if (data.rates?.rates?.USD) cards.push(['Euro', `$${data.rates.rates.USD.toFixed(4)}`, 'US dollars to 1 euro (ECB)', { text: `Rate for ${ecbDay(data.rates.date)}`, old: hoursOld(data.rates.sourceTime) > 24 * 4 }]);
 
+        const moon = Sky.moonPhase(new Date());
+        const inDays = n => { const d = Math.max(1, Math.round(n)); return `in about ${d} day${d === 1 ? '' : 's'}`; };
+        cards.push(['Moon', `${Math.round(moon.lit * 100)}% lit`, /^(Full|New) moon$/.test(moon.name) ? moon.name
+            : moon.waxing ? `${moon.name}, full ${inDays(moon.daysToFull)}` : `${moon.name}, new moon ${inDays(moon.daysToNew)}`, null]);
+
         const strip = document.getElementById('national');
         let expanded = false;
         try { expanded = localStorage.getItem('cards-expanded') === '1'; } catch { /* private mode */ }
@@ -684,6 +699,10 @@
             ],
             note: 'This is electricity only, not all energy: heating and transport often still run on fossil fuels.'
         }),
+        moon: () => help('Moon', {
+            intro: 'How much of the moon’s face is lit by the sun right now, worked out from the date. It’s the same everywhere on Earth.',
+            note: 'From the southern half of the world the moon looks the other way up, so it fills in from the left instead of the right.'
+        }),
         webcams: () => help('Webcams', {
             intro: 'The most-watched public webcams on each continent, up to 5 per country, from Windy.com. "Show camera" opens Windy’s player with the latest picture and a timelapse of the day.',
             note: 'A camera whose picture hasn’t changed for a day is marked ⚠: it may be stuck or offline.'
@@ -699,7 +718,7 @@
     };
     const CARD_HELP = {
         'Hottest capital now': 'capitalTemp', 'Coldest capital now': 'capitalTemp', 'Biggest quake this week': 'quakes', 'Earthquakes this week': 'quakes',
-        'Wildfires tracked': 'wildfires', 'Storms tracked': 'storms', 'Worst air now': 'aqi', 'Northern Lights': 'kp', 'Euro': 'euro'
+        'Wildfires tracked': 'wildfires', 'Storms tracked': 'storms', 'Worst air now': 'aqi', 'Northern Lights': 'kp', 'Euro': 'euro', 'Moon': 'moon'
     };
     const VIEW_HELP = { temperature: 'temperature', daynight: 'daynight', air: 'aqi', population: 'population', gdp: 'gdp', life: 'life', clean: 'electricity' };
     const helpFor = key => (key && HELP[key] ? HELP[key]() : '');
@@ -757,9 +776,14 @@
                 <div class="fday-temp">${esc(d.max?.toFixed(0) ?? '–')}°<span> / ${esc(d.min?.toFixed(0) ?? '–')}°</span></div>
                 <div class="fday-sum">${esc(weatherText(d.code))}${d.rain ? `, ${esc(d.rain.toFixed(0))} mm` : ''}</div></div>`).join('')}</div>`);
             const today = w.daily[0];
+            const length = Sky.dayLength(today.sunrise, today.sunset);
+            const next = w.daily[1] && Sky.dayLength(w.daily[1].sunrise, w.daily[1].sunset);
+            const change = length && next ? next.minutes - length.minutes : null;
             html += section('Daylight today', today.sunrise && today.sunset ? `
                 <div class="row"><span class="big">${esc(localTime(today.sunrise, w))}</span><span class="soft">sunrise</span>
                 <span class="big">${esc(localTime(today.sunset, w))}</span><span class="soft">sunset</span></div>
+                ${length ? `<p class="soft">${esc(length.text)} of daylight${change == null ? '' : change === 0 ? ', about the same tomorrow'
+                    : `, ${esc(Math.abs(change))} min ${change > 0 ? 'longer' : 'shorter'} tomorrow`}</p>` : ''}
                 <p class="muted">Local time ${esc(where)}.</p>`
                 : `<p class="soft">${w.isDay ? 'The sun doesn’t set here today (polar day).' : 'The sun doesn’t rise here today (polar night).'}</p>`);
         }
