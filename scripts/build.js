@@ -21,7 +21,8 @@ const LAYERS = {
     aurora: [require('./layers/aurora').fetchAurora, 0],
     rates: [require('./layers/rates').fetchRates, 3],
     electricity: [require('./layers/electricity').fetchElectricity, 24],
-    facts: [require('./layers/facts').fetchFacts, 24]
+    facts: [require('./layers/facts').fetchFacts, 24],
+    holidays: [require('./layers/holidays').fetchHolidays, 3]
 };
 
 async function runLayer(name, [fetchLayer, maxAgeHours]) {

@@ -3,6 +3,7 @@
 // so ~240 places hourly is ~5,800 of the 10,000 calls a day allowed.
 const http = require('../lib/http');
 const { COUNTRIES } = require('../lib/geo');
+const Sky = require('../../public/sky');
 
 const SOURCE = {
     name: 'Open-Meteo weather forecast',
@@ -13,7 +14,11 @@ const SOURCE = {
 
 const API = 'https://api.open-meteo.com/v1/forecast';
 const BATCH = 50;
-const CURRENT = 'temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,wind_gusts_10m,precipitation,is_day';
+// Open-Meteo counts more than 10 variables as more than one call, so day or night is worked out here from
+// the sun's position rather than asked for, leaving room for the UV index
+const CURRENT = 'temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,wind_gusts_10m,precipitation,uv_index';
+// The sun's middle is this far below the horizon at sunrise and sunset (its size, and the air bending its light)
+const SUNRISE_ALTITUDE = -0.833;
 const DAILY = 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,sunrise,sunset';
 
 /** Open-Meteo gives local times ("2026-11-09T02:45") plus the offset; turn them into UTC ISO strings. */
@@ -24,7 +29,7 @@ function toUtc(local, offsetSeconds) {
 
 const num = v => (typeof v === 'number' && Number.isFinite(v) ? v : null);
 
-function parsePlace(p) {
+function parsePlace(p, place) {
     const c = p?.current;
     const offset = p?.utc_offset_seconds;
     if (!c || !Number.isFinite(offset)) return null;
@@ -42,6 +47,9 @@ function parsePlace(p) {
         sunrise: d.sunrise?.[i] ? toUtc(d.sunrise[i], offset) : null,
         sunset: d.sunset?.[i] ? toUtc(d.sunset[i], offset) : null
     }));
+    const time = toUtc(c.time, offset);
+    if (!time) return null;
+    const uv = num(c.uv_index);
     return {
         temp,
         feels: num(c.apparent_temperature),
@@ -50,8 +58,9 @@ function parsePlace(p) {
         wind: num(c.wind_speed_10m),
         gust: num(c.wind_gusts_10m),
         rain: num(c.precipitation),
-        isDay: c.is_day === 1,
-        time: toUtc(c.time, offset),
+        uv: uv == null || uv < 0 || uv > 20 ? null : uv,
+        isDay: Sky.sunAltitude(place.lat, place.lon, new Date(time)) > SUNRISE_ALTITUDE,
+        time,
         offset,
         tz: typeof p.timezone === 'string' ? p.timezone : null,
         daily
@@ -78,7 +87,7 @@ async function fetchWeather() {
         batch.forEach((c, k) => {
             // location_id says which requested place an answer is for; fall back to the order
             const p = answer.find(a => a?.location_id === k) || answer[k];
-            const parsed = parsePlace(p);
+            const parsed = parsePlace(p, c);
             if (parsed) countries[c.id] = parsed;
         });
     }

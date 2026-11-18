@@ -2,7 +2,7 @@
 (function () {
     'use strict';
 
-    const LAYERS = ['weather', 'airquality', 'earthquakes', 'events', 'webcams', 'aurora', 'rates', 'electricity', 'facts'];
+    const LAYERS = ['weather', 'airquality', 'earthquakes', 'events', 'webcams', 'aurora', 'rates', 'electricity', 'facts', 'holidays'];
     const data = {};
     let status = null;
     let countries = null;   // GeoJSON features
@@ -106,6 +106,40 @@
     const AQI_BANDS = [[50, 'Good'], [100, 'Moderate'], [150, 'Unhealthy for sensitive groups'], [200, 'Unhealthy'], [300, 'Very unhealthy'], [Infinity, 'Hazardous']];
     const aqiText = v => v == null ? 'No reading' : AQI_BANDS.find(([max]) => v <= max)[1];
 
+    // UV index bands (World Health Organization)
+    const UV_BANDS = [[3, 'Low'], [6, 'Moderate'], [8, 'High'], [11, 'Very high'], [Infinity, 'Extreme']];
+    const uvText = v => UV_BANDS.find(([below]) => Math.round(v) < below)[1];
+
+    /** The date where the country is, e.g. "2026-11-18" (its own time zone, else its offset). */
+    function localDate(w, now = new Date()) {
+        try { if (w?.tz) return now.toLocaleDateString('en-CA', { timeZone: w.tz }); } catch { /* fall through */ }
+        return new Date(now.getTime() + (w?.offset || 0) * 1000).toISOString().slice(0, 10);
+    }
+    /** A country's holidays from its own today on, soonest first. */
+    function holidaysFor(id) {
+        const today = localDate(W(id));
+        return (data.holidays?.holidays || []).filter(h => h.country === id && h.date >= today);
+    }
+    const holidayToday = id => holidaysFor(id).find(h => h.date === localDate(W(id)));
+
+    /** Hours of daylight today at the capital: 24 in polar day, 0 in polar night. */
+    function daylightHours(id) {
+        const w = W(id), today = w?.daily?.[0];
+        if (!today) return null;
+        if (!today.sunrise || !today.sunset) return w.isDay ? 24 : 0;
+        const length = Sky.dayLength(today.sunrise, today.sunset);
+        return length ? length.minutes / 60 : null;
+    }
+
+    /** Population now, estimated from the latest count (a mid-year figure) and that year's growth rate. */
+    function populationNow(f, now = Date.now()) {
+        const growth = f?.populationGrowth?.value;
+        if (!f?.population || growth == null) return null;
+        const years = (now - Date.UTC(f.population.year, 6, 1)) / (365.25 * 86400000);
+        return f.population.value * Math.pow(1 + growth / 100, years);
+    }
+    const perDay = f => f.population.value * (Math.pow(1 + f.populationGrowth.value / 100, 1 / 365.25) - 1);
+
     // ---------- Views: what colours the countries ----------
 
     const W = id => data.weather?.countries?.[id];
@@ -127,6 +161,28 @@
                 <div class="legend-row"><span class="legend-swatch" style="background:#f5d76e"></span>Daytime</div>
                 <div class="legend-row"><span class="legend-swatch" style="background:#2b3a67"></span>Night</div>`,
             describe: v => v == null ? 'No reading' : v ? 'Daytime' : 'Night'
+        },
+        daylength: {
+            label: 'Day length', title: 'Hours of daylight today at the capital',
+            value: daylightHours,
+            stops: [[0, '1b2a4e'], [6, '41629b'], [10, '9db8d9'], [12, 'f2e6a7'], [16, 'f5c542'], [24, 'e08a1e']],
+            ends: ['0 hours', '24 hours'],
+            describe: v => v == null ? 'No reading' : v === 24 ? 'The sun doesn’t set today' : v === 0 ? 'The sun doesn’t rise today'
+                : `${Math.floor(v)} hr ${Math.round((v % 1) * 60)} min of daylight`
+        },
+        humidity: {
+            label: 'Humidity', title: 'Humidity now at the capital',
+            value: id => W(id)?.humidity,
+            stops: [[10, 'c8a46a'], [30, 'e8dcb5'], [50, 'cfe3e0'], [70, '7fb8c9'], [90, '2c6f94']],
+            ends: ['Dry', 'Very humid'],
+            describe: v => v == null ? 'No reading' : `${v}% humidity`
+        },
+        wind: {
+            label: 'Wind', title: 'Wind speed now at the capital',
+            value: id => W(id)?.wind,
+            stops: [[0, 'eef4f2'], [10, 'b9dccf'], [20, '6fbf9f'], [35, '2a8f7a'], [50, '1c5c78'], [70, '4b1d6b']],
+            ends: ['Calm', '70+ km/h'],
+            describe: v => v == null ? 'No reading' : `${v.toFixed(0)} km/h`
         },
         air: {
             label: 'Air quality', title: 'Air quality index (US AQI), model estimate',
@@ -431,6 +487,14 @@
         }
     });
     new MapButtons().addTo(map);
+    // Population clocks tick every second
+    setInterval(() => {
+        for (const el of document.querySelectorAll('[data-popclock]')) {
+            const id = el.dataset.popclock;
+            const v = populationNow(id === 'WLD' ? data.facts?.world : data.facts?.countries?.[id]);
+            if (v != null) el.textContent = fmt(Math.round(v));
+        }
+    }, 1000);
     setInterval(() => overlayLayers.night?.eachLayer(l => l.setLatLngs(Sky.nightPolygon(new Date()))), 5 * 60000);
     const resetView = () => map.flyTo([25, 10], window.innerWidth < 560 ? 1.5 : 2, { duration: 0.6 });
 
@@ -564,6 +628,17 @@
         // ECB rates are set on working days, so a weekend or holiday leaves them a few days old
         if (data.rates?.rates?.USD) cards.push(['Euro', `$${data.rates.rates.USD.toFixed(4)}`, 'US dollars to 1 euro (ECB)', { text: `Rate for ${ecbDay(data.rates.date)}`, old: hoursOld(data.rates.sourceTime) > 24 * 4 }]);
 
+        const highUv = ranked(id => props(id)?.capital ? W(id)?.uv : null)[0];
+        if (highUv) cards.push(['Highest UV now', `UV ${Math.round(highUv[1])}`, `${props(highUv[0])?.place || nameOf(highUv[0])}, ${nameOf(highUv[0])}: ${uvText(highUv[1])}`, at(data.weather.sourceTime, 3)]);
+        if (data.holidays) {
+            const off = (countries || []).map(f => f.properties.id).filter(id => { const h = holidayToday(id); return h && !h.regional; });
+            const names = off.map(nameOf).sort();
+            cards.push(['Public holidays today', fmt(off.length),
+                off.length ? `${names.slice(0, 3).join(', ')}${names.length > 3 ? ` and ${names.length - 3} more` : ''}` : 'countries with a nationwide holiday', null]);
+        }
+        const wf = data.facts?.world;
+        if (populationNow(wf) != null) cards.push(['World population', fmt(Math.round(populationNow(wf))), `estimate, up about ${fmt(Math.round(perDay(wf) / 1000) * 1000)} a day`, null, 'WLD']);
+
         const moon = Sky.moonPhase(new Date());
         const inDays = n => { const d = Math.max(1, Math.round(n)); return `in about ${d} day${d === 1 ? '' : 's'}`; };
         cards.push(['Moon', `${Math.round(moon.lit * 100)}% lit`, /^(Full|New) moon$/.test(moon.name) ? moon.name
@@ -573,9 +648,9 @@
         let expanded = false;
         try { expanded = localStorage.getItem('cards-expanded') === '1'; } catch { /* private mode */ }
         strip.classList.toggle('collapsed', !expanded);
-        strip.innerHTML = cards.map(([label, value, sub, note]) =>
+        strip.innerHTML = cards.map(([label, value, sub, note, ticker]) =>
             // The ⓘ stays on the same line as the label's last word
-            `<div class="stat"><div class="stat-label">${esc(label).replace(/(\S+)$/, '<span class="nw">$1')} ${helpFor(CARD_HELP[label])}</span></div><div class="stat-value">${esc(value)}</div><div class="stat-sub">${esc(sub)}</div>
+            `<div class="stat"><div class="stat-label">${esc(label).replace(/(\S+)$/, '<span class="nw">$1')} ${helpFor(CARD_HELP[label])}</span></div><div class="stat-value"${ticker ? ` data-popclock="${esc(ticker)}"` : ''}>${esc(value)}</div><div class="stat-sub">${esc(sub)}</div>
             ${note ? `<div class="stat-asof${note.old ? ' old' : ''}"${note.old ? ' title="Older than this source is usually updated"' : ''}>${note.old ? '⚠ ' : ''}${esc(note.text)}</div>` : ''}</div>`).join('')
             + (cards.length > 7 ? `<button type="button" class="cards-toggle" data-cards aria-expanded="${expanded}">${expanded ? 'Show fewer ▴' : `Show all ${cards.length} ▾`}</button>` : '');
     }
@@ -699,6 +774,37 @@
             ],
             note: 'This is electricity only, not all energy: heating and transport often still run on fossil fuels.'
         }),
+        uv: () => help('UV index', {
+            intro: 'How strong the sun’s burning rays are right now, from the Open-Meteo model. It’s 0 at night and highest around midday.',
+            rows: placeOn([
+                { from: 0, to: 2.5, range: '0–2', name: 'Low', colour: '#7fc97f', text: 'Little protection needed for most people.' },
+                { from: 2.5, to: 5.5, range: '3–5', name: 'Moderate', colour: '#f2c418', text: 'Shade around midday; sunscreen and a hat.' },
+                { from: 5.5, to: 7.5, range: '6–7', name: 'High', colour: '#ef8a1f', text: 'Protection needed; cut down time in the midday sun.' },
+                { from: 7.5, to: 10.5, range: '8–10', name: 'Very high', colour: '#e35d6a', text: 'Extra protection: skin burns quickly.' },
+                { from: 10.5, to: 99, range: '11+', name: 'Extreme', colour: '#b07cc6', text: 'Avoid the midday sun.' }
+            ], selected ? W(selected)?.uv : null),
+            note: 'Bands from the World Health Organization. Cloud lowers it; snow, water and height raise it.'
+        }),
+        holidays: () => help('Public holidays', {
+            intro: 'Public and bank holidays from Nager.Date, for the country’s own date today and the week ahead.',
+            note: 'The count includes only holidays for the whole country; some days are off only in some states or regions. Not every country is covered.'
+        }),
+        popclock: () => help('Population now', {
+            intro: 'An estimate: the World Bank’s latest yearly count, moved on to today at that year’s rate of growth.',
+            note: 'Births, deaths and people moving change the real number all the time, so treat the last few digits as a guide.'
+        }),
+        daylength: () => help('Day length', {
+            intro: 'Hours between sunrise and sunset today at each capital. Near the poles the sun can stay up, or down, all day.',
+            note: 'At the equator days are about 12 hours all year; the further from it, the bigger the change through the year.'
+        }),
+        humidity: () => help('Humidity', {
+            intro: 'How much water vapour is in the air at each capital right now, as a share of the most it could hold at that temperature.',
+            note: 'Above about 70% warm weather can feel muggy; below about 30% the air feels dry.'
+        }),
+        wind: () => help('Wind', {
+            intro: 'The average wind speed 10 metres up at each capital right now, from the Open-Meteo model. Gusts can be much stronger.',
+            note: 'About 40 km/h is a strong breeze; 75 km/h and over is a gale.'
+        }),
         moon: () => help('Moon', {
             intro: 'How much of the moon’s face is lit by the sun right now, worked out from the date. It’s the same everywhere on Earth.',
             note: 'From the southern half of the world the moon looks the other way up, so it fills in from the left instead of the right.'
@@ -714,13 +820,14 @@
         'Northern Lights': 'kp', 'Southern Lights': 'kp', 'Northern and Southern Lights': 'kp',
         'Money': 'euro', 'Exchange rates': 'euro', 'Facts': 'facts', 'Webcams': 'webcams',
         'Electricity': 'electricity', 'Cleanest electricity': 'electricity', 'Most fossil-fuelled electricity': 'electricity',
-        'Fires, storms and other events': 'events', 'Hottest capitals right now': 'capitalTemp', 'Coldest capitals right now': 'capitalTemp'
+        'Fires, storms and other events': 'events', 'Public holidays': 'holidays', 'Hottest capitals right now': 'capitalTemp', 'Coldest capitals right now': 'capitalTemp'
     };
     const CARD_HELP = {
         'Hottest capital now': 'capitalTemp', 'Coldest capital now': 'capitalTemp', 'Biggest quake this week': 'quakes', 'Earthquakes this week': 'quakes',
-        'Wildfires tracked': 'wildfires', 'Storms tracked': 'storms', 'Worst air now': 'aqi', 'Northern Lights': 'kp', 'Euro': 'euro', 'Moon': 'moon'
+        'Wildfires tracked': 'wildfires', 'Storms tracked': 'storms', 'Worst air now': 'aqi', 'Northern Lights': 'kp', 'Euro': 'euro', 'Moon': 'moon',
+        'Highest UV now': 'uv', 'Public holidays today': 'holidays', 'World population': 'popclock'
     };
-    const VIEW_HELP = { temperature: 'temperature', daynight: 'daynight', air: 'aqi', population: 'population', gdp: 'gdp', life: 'life', clean: 'electricity' };
+    const VIEW_HELP = { temperature: 'temperature', daynight: 'daynight', daylength: 'daylength', humidity: 'humidity', wind: 'wind', air: 'aqi', population: 'population', gdp: 'gdp', life: 'life', clean: 'electricity' };
     const helpFor = key => (key && HELP[key] ? HELP[key]() : '');
 
     // Help boxes are position: fixed so scrolling panels can't clip them; place each beside its ⓘ,
@@ -761,10 +868,21 @@
             <div class="irish">${esc([p.region, p.capital ? `capital ${p.capital}` : null].filter(Boolean).join(' · '))}</div>`;
         if (w) html += `<p class="soft" style="margin-top:6px">Local time at ${esc(p.place || p.name)}: <strong>${esc(localNow(w))}</strong> <span class="muted">(${esc(utcOffset(w.offset))})</span></p>`;
 
+        // Public holidays today and in the coming week
+        const hols = holidaysFor(id);
+        if (hols.length) {
+            const today = localDate(w);
+            const when = h => h.date === today ? 'Today' : new Date(`${h.date}T12:00:00Z`).toLocaleDateString('en-IE', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
+            html += section('Public holidays', `<ul class="list">${hols.slice(0, 4).map(h => `<li>${h.date === today ? `<strong>${esc(h.name)}</strong>` : esc(h.name)}${h.localName ? ` <span class="muted">(${esc(h.localName)})</span>` : ''}
+                <span class="meta">${esc(when(h))}${h.regional ? ' · some regions only' : ''}</span></li>`).join('')}</ul>
+                ${asOf(`Nager.Date list from ${clock(data.holidays.sourceTime)}`, hoursOld(data.holidays.sourceTime) > 24)}`, ['Nager.Date', 'https://date.nager.at/']);
+        }
+
         // Weather now
         const where = p.place ? `at ${p.place}` : 'in the middle of the country';
         html += section('Weather now', w ? `
             <div class="row"><span class="big">${esc(w.temp.toFixed(1))}°C</span><span class="soft">${esc(weatherText(w.code))}${w.isDay ? '' : ', night'}</span></div>
+            ${w.uv != null && (w.isDay || w.uv > 0) ? `<p class="soft">UV index <strong>${esc(Math.round(w.uv))}</strong>: ${esc(uvText(w.uv))} ${helpFor('uv')}</p>` : ''}
             <p class="muted">Feels like ${esc(w.feels?.toFixed(0) ?? '–')}°C · wind ${esc(w.wind?.toFixed(0) ?? '–')} km/h${w.gust ? `, gusts ${esc(w.gust.toFixed(0))}` : ''} · humidity ${esc(w.humidity ?? '–')}%${w.rain ? ` · ${esc(w.rain)} mm rain` : ''}</p>
             <p class="muted">Model weather ${esc(where)}, not a station reading.</p>
             ${asOf(`Weather for ${clock(w.time)}`, hoursOld(w.time) > 3)}` : unavailable, ['open-meteo.com', 'https://open-meteo.com/']);
@@ -883,6 +1001,8 @@
         if (f) {
             const row = (label, x, show) => x ? `<li>${esc(label)} <span class="meta">${esc(show(x.value))} (${esc(x.year)})</span></li>` : '';
             html += section('Facts', `<ul class="list">
+                ${populationNow(f) != null ? `<li>Population now <span class="meta"><span data-popclock="${esc(id)}">${esc(fmt(Math.round(populationNow(f))))}</span>
+                    (estimate, ${perDay(f) >= 0 ? 'up' : 'down'} about ${esc(fmt(Math.abs(Math.round(perDay(f)))))} a day) ${helpFor('popclock')}</span></li>` : ''}
                 ${row('Population', f.population, bigNumber)}
                 ${row('GDP per person', f.gdpPerHead, v => `${dollars(v)} a year`)}
                 ${row('Life expectancy', f.lifeExpectancy, v => `${v.toFixed(1)} years`)}</ul>

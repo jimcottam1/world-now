@@ -1,0 +1,132 @@
+[
+ {
+  "page": 1,
+  "pages": 1,
+  "per_page": 400,
+  "total": 8,
+  "sourceid": null,
+  "lastupdated": "2026-11-11"
+ },
+ [
+  {
+   "indicator": {
+    "id": "SP.POP.GROW",
+    "value": "Population growth (annual %)"
+   },
+   "country": {
+    "id": "ZH",
+    "value": "Africa Eastern and Southern"
+   },
+   "countryiso3code": "AFE",
+   "date": "2025",
+   "value": 2.51127758940208,
+   "obs_status": "",
+   "decimal": 1
+  },
+  {
+   "indicator": {
+    "id": "SP.POP.GROW",
+    "value": "Population growth (annual %)"
+   },
+   "country": {
+    "id": "1W",
+    "value": "World"
+   },
+   "countryiso3code": "WLD",
+   "date": "2025",
+   "value": 0.911303701154864,
+   "obs_status": "",
+   "decimal": 1
+  },
+  {
+   "indicator": {
+    "id": "SP.POP.GROW",
+    "value": "Population growth (annual %)"
+   },
+   "country": {
+    "id": "FR",
+    "value": "France"
+   },
+   "countryiso3code": "FRA",
+   "date": "2025",
+   "value": 0.245766211891762,
+   "obs_status": "",
+   "decimal": 1
+  },
+  {
+   "indicator": {
+    "id": "SP.POP.GROW",
+    "value": "Population growth (annual %)"
+   },
+   "country": {
+    "id": "IN",
+    "value": "India"
+   },
+   "countryiso3code": "IND",
+   "date": "2025",
+   "value": 0.887183543977214,
+   "obs_status": "",
+   "decimal": 1
+  },
+  {
+   "indicator": {
+    "id": "SP.POP.GROW",
+    "value": "Population growth (annual %)"
+   },
+   "country": {
+    "id": "IE",
+    "value": "Ireland"
+   },
+   "countryiso3code": "IRL",
+   "date": "2025",
+   "value": 1.62826615443033,
+   "obs_status": "",
+   "decimal": 1
+  },
+  {
+   "indicator": {
+    "id": "SP.POP.GROW",
+    "value": "Population growth (annual %)"
+   },
+   "country": {
+    "id": "XK",
+    "value": "Kosovo"
+   },
+   "countryiso3code": "XKX",
+   "date": "2025",
+   "value": -1.10223367296906,
+   "obs_status": "",
+   "decimal": 1
+  },
+  {
+   "indicator": {
+    "id": "SP.POP.GROW",
+    "value": "Population growth (annual %)"
+   },
+   "country": {
+    "id": "TV",
+    "value": "Tuvalu"
+   },
+   "countryiso3code": "TUV",
+   "date": "2025",
+   "value": -1.6093983073263,
+   "obs_status": "",
+   "decimal": 1
+  },
+  {
+   "indicator": {
+    "id": "SP.POP.GROW",
+    "value": "Population growth (annual %)"
+   },
+   "country": {
+    "id": "GB",
+    "value": "United Kingdom"
+   },
+   "countryiso3code": "GBR",
+   "date": "2025",
+   "value": 0.296898638478743,
+   "obs_status": "",
+   "decimal": 1
+  }
+ ]
+]

@@ -17,7 +17,7 @@
    "wind_speed_10m": "km/h",
    "wind_gusts_10m": "km/h",
    "precipitation": "mm",
-   "is_day": ""
+   "uv_index": ""
   },
   "current": {
    "time": "2026-11-08T21:15",
@@ -29,7 +29,7 @@
    "wind_speed_10m": 2.5,
    "wind_gusts_10m": 4,
    "precipitation": 0,
-   "is_day": 0
+   "uv_index": 0
   },
   "daily_units": {
    "time": "iso8601",
@@ -97,7 +97,7 @@
    "wind_speed_10m": "km/h",
    "wind_gusts_10m": "km/h",
    "precipitation": "mm",
-   "is_day": ""
+   "uv_index": ""
   },
   "current": {
    "time": "2026-11-09T02:45",
@@ -109,7 +109,7 @@
    "wind_speed_10m": 5.4,
    "wind_gusts_10m": 10.4,
    "precipitation": 0,
-   "is_day": 0
+   "uv_index": 0
   },
   "daily_units": {
    "time": "iso8601",

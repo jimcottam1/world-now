@@ -107,7 +107,13 @@ test('facts: the latest figure and year for each country; regions are ignored', 
     assert.deepEqual(d.countries.NGA.usdRate, { value: 1518.38094813367, year: 2025 }, 'naira per US dollar, yearly average');
     assert.equal(d.countries.KOS.population.value, 1576876, "Kosovo is XKX at the World Bank");
     assert.ok(!Object.keys(d.countries).some(id => ['AFE', 'WLD'].includes(id)));
-    assert.equal(d.sourceTime, '2026-10-08T00:00:00.000Z');
+    assert.deepEqual(d.countries.IRL.populationGrowth, { value: 1.62826615443033, year: 2025 }, 'per cent a year');
+    assert.equal(d.countries.KOS.populationGrowth.value, -1.10223367296906, 'shrinking');
+    // The world as a whole is kept apart, for the world population card
+    assert.deepEqual(d.world.population, { value: 8215424893, year: 2025 });
+    assert.equal(d.world.populationGrowth.value, 0.911303701154864);
+    // The most recently revised table wins: the growth rates, revised 11 November
+    assert.equal(d.sourceTime, '2026-11-11T00:00:00.000Z');
 });
 
 test('facts: an indicator with no countries throws', async () => {

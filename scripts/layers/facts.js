@@ -15,6 +15,8 @@ const INDICATORS = {
     population: 'SP.POP.TOTL',
     gdpPerHead: 'NY.GDP.PCAP.CD',
     lifeExpectancy: 'SP.DYN.LE00.IN',
+    // Yearly % change, so the page can estimate today's population from the latest count
+    populationGrowth: 'SP.POP.GROW',
     // Covers the currencies the ECB's daily rates don't
     usdRate: 'PA.NUS.FCRF'
 };
@@ -30,12 +32,14 @@ async function fetchFacts() {
     for (const c of COUNTRIES) (byWb[c.wb] ||= []).push(c.id);
 
     const countries = {};
+    const world = {};
     const updated = [];
     for (const [key, code] of Object.entries(INDICATORS)) {
         const { rows, lastUpdated } = await fetchIndicator(code);
         if (lastUpdated) updated.push(lastUpdated);
         let matched = 0;
         for (const r of rows) {
+            if (r?.countryiso3code === 'WLD' && typeof r.value === 'number' && Number.isInteger(Number(r.date))) world[key] = { value: r.value, year: Number(r.date) };
             // Regions and income groups (Africa Eastern and Southern, World) match no country and drop out here
             const ids = byWb[r?.countryiso3code];
             const year = Number(r?.date);
@@ -51,7 +55,8 @@ async function fetchFacts() {
         source: SOURCE,
         // When the World Bank last revised these tables
         sourceTime: updated.length ? new Date(`${updated[updated.length - 1]}T00:00:00Z`).toISOString() : null,
-        countries
+        countries,
+        world
     };
 }
 

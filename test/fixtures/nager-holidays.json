@@ -1,0 +1,147 @@
+[
+ {
+  "date": "2026-11-18",
+  "localName": "Buß- und Bettag",
+  "name": "Repentance and Prayer Day",
+  "countryCode": "DE",
+  "fixed": false,
+  "global": false,
+  "counties": [
+   "DE-SN"
+  ],
+  "launchYear": null,
+  "types": [
+   "Public"
+  ]
+ },
+ {
+  "date": "2026-11-18",
+  "localName": "Dan sjećanja na žrtve Domovinskog rata",
+  "name": "Remembrance Day",
+  "countryCode": "HR",
+  "fixed": false,
+  "global": true,
+  "counties": null,
+  "launchYear": null,
+  "types": [
+   "Public"
+  ]
+ },
+ {
+  "date": "2026-11-18",
+  "localName": "Vertières",
+  "name": "Battle of Vertières Day",
+  "countryCode": "HT",
+  "fixed": false,
+  "global": true,
+  "counties": null,
+  "launchYear": null,
+  "types": [
+   "Public"
+  ]
+ },
+ {
+  "date": "2026-11-18",
+  "localName": "Latvijas Republikas Proklamēšanas diena",
+  "name": "Day of the Proclamation of the Republic of Latvia",
+  "countryCode": "LV",
+  "fixed": false,
+  "global": true,
+  "counties": null,
+  "launchYear": null,
+  "types": [
+   "Public"
+  ]
+ },
+ {
+  "date": "2026-11-18",
+  "localName": "Eid Al Istiqulal",
+  "name": "Independence Day",
+  "countryCode": "MA",
+  "fixed": false,
+  "global": true,
+  "counties": null,
+  "launchYear": null,
+  "types": [
+   "Public"
+  ]
+ },
+ {
+  "date": "2026-11-19",
+  "localName": "Garifuna Settlement Day",
+  "name": "Garifuna Settlement Day",
+  "countryCode": "BZ",
+  "fixed": false,
+  "global": true,
+  "counties": null,
+  "launchYear": null,
+  "types": [
+   "Public"
+  ]
+ },
+ {
+  "date": "2026-11-19",
+  "localName": "La Fête du Prince",
+  "name": "National Day",
+  "countryCode": "MC",
+  "fixed": false,
+  "global": true,
+  "counties": null,
+  "launchYear": null,
+  "types": [
+   "Public"
+  ]
+ },
+ {
+  "date": "2026-11-19",
+  "localName": "Día del Descubrimiento de Puerto Rico",
+  "name": "Discovery of Puerto Rico",
+  "countryCode": "PR",
+  "fixed": false,
+  "global": true,
+  "counties": null,
+  "launchYear": null,
+  "types": [
+   "Public"
+  ]
+ },
+ {
+  "date": "2026-11-20",
+  "localName": "Dia da Consciência Negra",
+  "name": "Black Awareness Day",
+  "countryCode": "BR",
+  "fixed": false,
+  "global": true,
+  "counties": null,
+  "launchYear": null,
+  "types": [
+   "Public"
+  ]
+ },
+ {
+  "date": "2026-11-20",
+  "localName": "Matari'i",
+  "name": "Matari'i",
+  "countryCode": "PF",
+  "fixed": false,
+  "global": true,
+  "counties": null,
+  "launchYear": null,
+  "types": [
+   "Public"
+  ]
+ },
+ {
+  "date": "2026-11-20",
+  "localName": "King's Birthday",
+  "name": "King's Birthday",
+  "countryCode": "SH",
+  "fixed": false,
+  "global": true,
+  "counties": null,
+  "launchYear": null,
+  "types": [
+   "Public"
+  ]
+ }
+]

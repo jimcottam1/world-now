@@ -24,12 +24,14 @@ test('every country gets weather, in batches, with times in UTC', async () => {
     const d = await loadLayer('weather').fetchWeather();
     assert.equal(seen.length, Math.ceil(COUNTRIES.length / 50));
     assert.match(seen[0], /timezone=auto/);
-    assert.match(decodeURIComponent(seen[0]), /current=[^&]*is_day/);
+    assert.match(decodeURIComponent(seen[0]), /current=[^&]*uv_index/);
+    assert.doesNotMatch(decodeURIComponent(seen[0]), /is_day/, 'day or night is worked out, not asked for');
     assert.equal(Object.keys(d.countries).length, COUNTRIES.length);
 
     const india = d.countries.IND;
     assert.equal(india.temp, 19.5);
     assert.equal(india.isDay, false);
+    assert.equal(india.uv, 0);
     assert.equal(india.offset, 19800);
     assert.equal(india.tz, 'Asia/Kolkata');
     // 02:45 in India (UTC+5:30) is 21:15 UTC the day before
@@ -37,6 +39,22 @@ test('every country gets weather, in batches, with times in UTC', async () => {
     assert.equal(india.daily.length, 3);
     assert.deepEqual(india.daily[0], { date: '2026-11-09', code: 3, max: 27.9, min: 18.1, rain: 0, sunrise: '2026-11-09T01:08:00.000Z', sunset: '2026-11-09T12:00:00.000Z' });
     assert.ok(d.sourceTime);
+});
+
+test('day or night comes from the sun at each place, at the time of the reading', async () => {
+    // 12:00 UTC: midday in Ireland, 1 in the morning in New Zealand
+    mockHttp(server({ edit: p => ({ ...p, utc_offset_seconds: 0, current: { ...p.current, time: '2026-11-08T12:00', uv_index: 1.25 } }) }));
+    const d = await loadLayer('weather').fetchWeather();
+    assert.equal(d.countries.IRL.isDay, true);
+    assert.equal(d.countries.NZL.isDay, false);
+    assert.equal(d.countries.IRL.uv, 1.25);
+});
+
+test('a broken UV reading is dropped, not the weather', async () => {
+    mockHttp(server({ edit: p => ({ ...p, current: { ...p.current, uv_index: -3 } }) }));
+    const d = await loadLayer('weather').fetchWeather();
+    assert.equal(d.countries.IRL.uv, null);
+    assert.equal(d.countries.IRL.temp, 7.8);
 });
 
 test('answers are matched by location_id, not just their order', async () => {
